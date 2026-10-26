@@ -104,7 +104,7 @@ class DashboardBrowserTests(unittest.TestCase):
     def test_demo_composition_and_navigation(self):
         self.load()
         self.assertEqual(self.page.locator('.tile').count(), 8)
-        self.assertEqual(self.page.locator('.setup').all_text_contents(), ['Setup required'] * 6)
+        self.assertEqual(self.page.locator('.setup').all_text_contents(), ['Open app', 'Open app', 'Open app', 'Setup required', 'Open app', 'Open app'])
         self.assertEqual(self.page.locator('#mode').inner_text(), 'Demo')
         self.assertEqual(self.active(), 0)
         self.press('ArrowLeft')
@@ -159,11 +159,11 @@ class DashboardBrowserTests(unittest.TestCase):
 
     def test_app_launch_success_errors_setup_and_exit(self):
         self.load(mock=True, configured=True)
-        self.press('ArrowRight')
+        self.page.locator('.tile').nth(3).focus()
         self.press('Enter')
         self.assertIn('setup required', self.status())
         self.assertEqual(self.page.evaluate('calls'), [])
-        self.press('ArrowLeft')
+        self.page.locator('.tile').first.focus()
         self.press('Enter')
         self.assertIn('Launch accepted', self.status())
         self.assertEqual(self.page.evaluate('calls[0]'), ['launch', 'test.youtube'])
@@ -175,6 +175,25 @@ class DashboardBrowserTests(unittest.TestCase):
         self.press('ArrowRight')
         self.press('Enter')
         self.assertEqual(self.page.evaluate('calls[calls.length - 1]'), ['exit'])
+
+    def test_verified_app_ids_are_used_by_mocked_launch(self):
+        self.load(mock=True)
+        expected = [
+            '9Ur5IzDKqV.TizenYouTube',
+            'org.tizen.netflix-app',
+            'evKhCgZelL.AmazonIgnitionLauncher2',
+            '',
+            'MCmYXNxgcu.DisneyPlus',
+            'com.samsung.tv.tvPlusDeeplinker',
+        ]
+        self.assertEqual(self.page.evaluate('TV_HOME_APPS.map(function(app) {return app.id;})'), expected)
+        for index, app_id in enumerate(expected):
+            if not app_id:
+                continue
+            self.page.locator('.tile').nth(index).focus()
+            self.press('Enter')
+            self.assertEqual(self.page.evaluate('calls[calls.length - 1]'), ['launch', app_id])
+        self.assertEqual(self.page.evaluate('calls.length'), 5)
 
     def test_hdmi_calls_back_and_transparency(self):
         self.load(mock=True)

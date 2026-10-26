@@ -23,13 +23,24 @@ The dashboard itself is offline; launching a streaming app does not make that se
 
 ## App setup is intentionally explicit
 
-All six application IDs in `apps/tv-dashboard/settings.js` are empty by default.
-YouTube, Netflix, Prime Video, Plex, Disney+, and Samsung TV Plus therefore display **Setup required**.
-No launch IDs were verified against this TV, and app availability differs by model, region, and installed version.
-Store/catalog numbers are not interchangeable with application IDs.
-Samsung TV Plus is a configurable shortcut, not a claim that the service exists on this TV.
+Five application IDs in `apps/tv-dashboard/settings.js` were verified by WorkBuddy's owner-authorized, read-only inventory on the target TV and supplied for this configuration update.
+They are **inventory-verified, not launch-tested**:
 
-Obtain the installed application's exact Tizen application ID through an authorized SDK/device inventory during a later, owner-approved device session.
+| App | Verified installed application ID |
+| --- | --- |
+| YouTube | `9Ur5IzDKqV.TizenYouTube` |
+| Netflix | `org.tizen.netflix-app` |
+| Prime Video | `evKhCgZelL.AmazonIgnitionLauncher2` |
+| Disney+ | `MCmYXNxgcu.DisneyPlus` |
+| Samsung TV Plus | `com.samsung.tv.tvPlusDeeplinker` |
+
+Plex is not installed; its ID remains empty and its tile displays **Setup required**.
+The other five tiles display **Open app**, which means configured, not successfully launch-tested.
+Store/catalog numbers are not interchangeable with application IDs.
+This configuration update did not contact the TV, sign a package, install anything, or perform certificate steps.
+Signing and installation remain pending compatible SDK extensions and completion of the Samsung certificate GUI.
+
+For additional apps, obtain the exact installed application ID through a later owner-approved, read-only inventory.
 Edit only the corresponding `id` string in `settings.js`, then rebuild and sign the package again.
 Do not guess IDs from store URLs, and do not add accounts or credentials to this file.
 Keep the six entries to preserve the intended one-row composition.
