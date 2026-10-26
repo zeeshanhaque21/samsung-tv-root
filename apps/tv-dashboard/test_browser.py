@@ -26,12 +26,18 @@ window.tizen = {
         },
         getCurrentApplication: function () {return {exit: function () {calls.push(['exit']);}};}
     },
-    tvwindow: {
-        getAvailableSources: function (ok, fail) {
-            calls.push(['sources']);
+    systeminfo: {
+        getPropertyValue: function (property, ok, fail) {
+            calls.push(['property', property]);
+            if (property !== 'VIDEOSOURCE') {throw new Error('Unexpected system property');}
             if (mockFailure === 'sources') {fail({name: 'SecurityError'}); return;}
-            ok(mockFailure === 'missing' ? [] : [{type: 'HDMI', number: 1}, {type: 'HDMI', number: 2}]);
-        },
+            ok(mockFailure === 'missing' ? {connected: [], disconnected: []} : {
+                connected: [{type: 'TV', number: 1}, {type: 'HDMI', number: 1}],
+                disconnected: [{type: 'HDMI', number: 2}]
+            });
+        }
+    },
+    tvwindow: {
         setSource: function (source, ok, fail, type) {
             calls.push(['source', source, type]);
             if (mockFailure === 'set') {fail({name: 'NotSupportedError'}); return;}
@@ -184,6 +190,19 @@ class DashboardBrowserTests(unittest.TestCase):
             self.assertEqual(self.page.evaluate('calls[calls.length - 1]'), ['hide', 'MAIN'])
             self.assertEqual(self.active(), index)
             self.assertFalse(self.page.locator('#input-hint').is_visible())
+
+    def test_hdmi_uses_videosource_without_get_available_sources(self):
+        self.load(mock=True)
+        self.assertFalse(self.page.evaluate("'getAvailableSources' in tizen.tvwindow"))
+        for index, number in [(6, 1), (7, 2)]:
+            self.page.locator('.tile').nth(index).focus()
+            self.press('Enter')
+            calls = self.page.evaluate('calls')
+            self.assertIn(['property', 'VIDEOSOURCE'], calls)
+            self.assertIn(['source', {'type': 'HDMI', 'number': number}, 'MAIN'], calls)
+            self.assertEqual(self.page.locator('body').get_attribute('class'), 'input-active')
+            self.press('Escape')
+        self.assertEqual(self.page.evaluate("calls.filter(function(call) {return call[0] === 'property';}).length"), 2)
 
     def test_hdmi_failures_never_show_success(self):
         self.load(mock=True)

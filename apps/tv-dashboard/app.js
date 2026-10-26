@@ -117,8 +117,9 @@
             }
         }
         try {
-            inputWindow.getAvailableSources(function (sources) {
+            tv.systeminfo.getPropertyValue('VIDEOSOURCE', function (videoSources) {
                 if (token !== generation) { return; }
+                var sources = videoSources.connected.concat(videoSources.disconnected);
                 var source = null;
                 var i;
                 for (i = 0; i < sources.length; i += 1) {

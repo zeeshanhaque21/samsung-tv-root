@@ -11,7 +11,8 @@ No TV connection, upload, installation, certificate creation, root attempt, expl
 - Arrows move between tiles; Enter opens; Back opens a cancellable exit dialog.
 - Back from an HDMI window closes that window and restores focus.
 - App launches use public `tizen.application.launch`.
-- HDMI uses public `tizen.tvwindow.getAvailableSources`, `setSource`, `show`, and `hide`.
+- HDMI discovers sources with public `tizen.systeminfo.getPropertyValue('VIDEOSOURCE', ...)`, combines its `connected` and `disconnected` arrays, then uses `tizen.tvwindow.setSource`, `show`, and `hide`.
+  `VIDEOSOURCE` discovery requires no additional privilege.
 - The HDMI window renders behind the transparent Web page; its Back hint hides after five seconds and returns on an arrow or Enter.
 - Missing TV APIs display **Demo** and explain why launch or switching cannot work.
 - No accounts, credentials, storage, telemetry, external fonts, CDN, backend, or network access.
