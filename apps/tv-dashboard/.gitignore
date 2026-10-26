@@ -1,0 +1,10 @@
+.work/
+build/
+__pycache__/
+*.wgt
+*.p12
+*.pfx
+*.pem
+*.key
+*.crt
+*.cer

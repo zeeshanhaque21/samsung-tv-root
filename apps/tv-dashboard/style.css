@@ -1,0 +1,57 @@
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { width: 100%; height: 100%; margin: 0; }
+body { background: #111918; color: #f4f3ed; font-family: Arial, Helvetica, sans-serif; overflow: hidden; }
+#home { width: 1920px; height: 1080px; padding: 60px 96px 40px; background: radial-gradient(ellipse at 85% 0%, #263b33 0%, #16221f 40%, #111918 75%); }
+header { height: 132px; display: flex; justify-content: space-between; align-items: flex-start; }
+.identity { font-size: 30px; font-weight: bold; display: flex; align-items: center; }
+.home-mark { display: inline-block; font-size: 42px; margin-right: 16px; color: #d9e4bb; }
+#mode { margin-left: 22px; padding: 7px 12px; border: 1px solid #859b8d; border-radius: 6px; font-size: 18px; color: #dce5d8; font-weight: normal; }
+.time { text-align: right; }
+#clock { font-size: 48px; line-height: 1; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+#date { color: #bdc9c0; font-size: 22px; margin-top: 12px; }
+.eyebrow { color: #c5d4b2; letter-spacing: 3px; font-size: 17px; font-weight: bold; }
+h1 { font-size: 64px; font-weight: normal; letter-spacing: -2px; margin: 16px 0 12px; }
+.intro { color: #bdc9c0; font-size: 25px; margin: 0; }
+.apps-section { margin-top: 48px; }
+.section-heading { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 22px; }
+h2 { font-size: 28px; margin: 0; font-weight: normal; }
+.section-heading span { color: #bdc9c0; font-size: 20px; }
+.tiles { display: flex; }
+button { font-family: inherit; cursor: pointer; color: inherit; border: 0; }
+.tile { position: relative; width: 272px; height: 153px; flex: 0 0 272px; margin-right: 19px; border-radius: 12px; background: #23322d; text-align: center; outline: none; padding: 12px; }
+.tile:last-child { margin-right: 0; }
+.tile:focus, .dialog button:focus { outline: 5px solid #f2f5cf; outline-offset: 7px; box-shadow: 0 0 0 10px #111918; }
+.brand { display: block; font-size: 32px; font-weight: bold; letter-spacing: -1px; }
+.setup { display: block; position: absolute; left: 0; right: 0; bottom: 18px; font-size: 17px; color: #d9dfdc; letter-spacing: 0; font-weight: normal; }
+.youtube { background: #302627; }
+.youtube .brand { color: #fff6f2; }
+.youtube .play { display: inline-block; background: #d4463e; border-radius: 7px; font-size: 20px; padding: 3px 10px; margin-right: 6px; vertical-align: 3px; }
+.netflix { background: #292326; }
+.netflix .brand { color: #ff646c; font-size: 35px; letter-spacing: 2px; }
+.prime { background: #20303d; }
+.prime .brand { color: #b2daf3; }
+.plex { background: #322e23; }
+.plex .brand { color: #eed28a; font-size: 42px; }
+.disney { background: #252c42; }
+.disney .brand { color: #d4ddff; }
+.tvplus { background: #2c3530; }
+.tvplus .brand { font-size: 27px; color: #d9e4bb; }
+.inputs-section { margin-top: 48px; }
+.input { width: 320px; flex-basis: 320px; height: 180px; background: #25342e; text-align: left; padding: 28px; }
+.input .brand { font-size: 30px; letter-spacing: 0; }
+.input .port { display: block; width: 46px; height: 25px; border: 3px solid #bdcba8; border-radius: 4px 4px 10px 10px; margin-bottom: 18px; }
+.input small { display: block; font-size: 18px; color: #c6d0c6; margin-top: 8px; }
+footer { position: absolute; top: 992px; left: 96px; right: 96px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; color: #c0cdc3; }
+footer > span { font-size: 15px; letter-spacing: 2px; }
+.key { display: inline-block; border: 1px solid #8a9b8e; border-radius: 5px; padding: 5px 10px; font-size: 17px; margin: 0 10px 0 24px; color: #e1e9de; }
+.key:first-child { margin-left: 0; }
+#status { position: absolute; left: 96px; top: 902px; width: 1728px; min-height: 50px; font-size: 22px; line-height: 1.4; color: #e5eacb; }
+body.input-active, body.input-active #home { background: transparent; }
+body.input-active #home, body.input-active #status { visibility: hidden; }
+#input-hint { position: absolute; top: 54px; left: 96px; padding: 20px 26px; background: #111918; border-radius: 10px; font-size: 24px; }
+.dialog-shade { position: absolute; top: 0; bottom: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, .85); }
+.dialog { width: 760px; background: #20312a; border: 1px solid #708574; border-radius: 18px; padding: 50px; }
+.dialog h2 { margin-top: 18px; font-size: 44px; }
+.dialog p { color: #cbd5ca; font-size: 24px; line-height: 1.5; }
+.dialog button { margin: 24px 20px 0 0; padding: 18px 30px; border-radius: 8px; font-size: 24px; background: #3d5144; }

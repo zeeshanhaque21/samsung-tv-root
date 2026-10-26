@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'">
+  <title>TV Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="home">
+    <header>
+      <div class="identity"><span class="home-mark" aria-hidden="true">⌂</span> TV Home <span id="mode">Demo</span></div>
+      <div class="time"><div id="clock"></div><div id="date"></div></div>
+    </header>
+    <section aria-labelledby="welcome"><div class="eyebrow">YOUR SPACE, SIMPLIFIED</div><h1 id="welcome">Make yourself at home.</h1><p class="intro">A quiet place for your favourites.</p></section>
+    <section aria-labelledby="apps-heading" class="apps-section">
+      <div class="section-heading"><h2 id="apps-heading">Your apps</h2><span>Choose something good.</span></div>
+      <div id="apps" class="tiles"></div>
+    </section>
+    <section aria-labelledby="inputs-heading" class="inputs-section">
+      <div class="section-heading"><h2 id="inputs-heading">Connected devices</h2><span>Switch to an HDMI input.</span></div>
+      <div id="inputs" class="tiles"></div>
+    </section>
+    <footer><div><span class="key">↑ ↓ ← →</span> Move <span class="key">OK</span> Open <span class="key">Back</span> Exit</div><span>LOCAL · NO ACCOUNTS · NO ADS</span></footer>
+  </main>
+  <div id="status" role="status" aria-live="polite">Demo mode. Open on a Samsung TV to use apps and HDMI.</div>
+  <div id="input-hint" hidden>HDMI <span id="input-number"></span><span class="key">Back</span> Return to TV Home</div>
+  <div id="exit-dialog" class="dialog-shade" hidden>
+    <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="exit-title">
+      <div class="eyebrow">TV HOME</div><h2 id="exit-title">Leave TV Home?</h2><p>Return to your TV. Smart Hub stays unchanged.</p>
+      <button id="stay">Stay here</button><button id="leave">Exit app</button>
+    </section>
+  </div>
+  <script src="settings.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
