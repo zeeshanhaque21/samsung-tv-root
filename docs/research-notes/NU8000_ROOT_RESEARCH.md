@@ -38,7 +38,8 @@ What that buys, and what it does not:
 | E7 | `exfat_fs.ko` | `e86e85c54e7b8feeb1f8bc56ca3ef877bb9bac09da65d8a3b020d76f964f5a90` | 29,342 bytes; vermagic `8970658 ... ARMv7 p2v8` |
 | E8 | public candidate source | `Luminger/samsung-tv-usb-root` @ `223f1cd6cca185f93fe7db53ef71eb52963a7086` | AGPL-3.0; findings cited, no code copied |
 
-Reproduce with `.work/scripts/{uimg,ksymtab,disas_ko,syms,disas_va}.py` and the patched VDFS extractor used for E1.
+Reproduce with `tools/nu8000-root/{uimg,ksymtab,disas_ko,syms,disas_va}.py` and the patched VDFS extractor used for E1.
+The scripts need `capstone` and `pyelftools`; they take the module, image, or virtual address as an argument and do not depend on the firmware living at a fixed path.
 
 ## 1. Driver form and reachability
 
