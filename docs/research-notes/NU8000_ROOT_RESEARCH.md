@@ -38,6 +38,7 @@ What that buys, and what it does not:
 | E7 | `exfat_fs.ko` | `e86e85c54e7b8feeb1f8bc56ca3ef877bb9bac09da65d8a3b020d76f964f5a90` | 29,342 bytes; vermagic `8970658 ... ARMv7 p2v8` |
 | E8 | public candidate source | `Luminger/samsung-tv-usb-root` @ `223f1cd6cca185f93fe7db53ef71eb52963a7086` | AGPL-3.0; findings cited, no code copied |
 | E9 | `exfat_mount` and `exfat_fs_func`, `.text+0x3744` and `.data+0x0` | mount-time store at `0x383c`; MOVW/MOVT relocations at `0x37e0`/`0x37e4` | establishes how the `fs_func` table reaches the readdir call |
+| E10 | kernel-internal symbol table entry at `0xc05948dc` | resolves `SfdUepVerifyFileSignature` to `0xc01cdecc` | first named UEP function in this image; see section 5 |
 
 Reproduce with `tools/nu8000-root/{uimg,ksymtab,disas_ko,syms,disas_va}.py` and the patched VDFS extractor used for E1.
 The scripts need `capstone` and `pyelftools`; they take the module, image, or virtual address as an argument and do not depend on the firmware living at a fixed path.
@@ -238,6 +239,13 @@ These are the open gates, in dependency order.
    The published Kant-M2 row states plainly that neither 2017 nor 2018 kernels contain the 2019 neutralizer bytes.
    No hook address, no enforcement-mode determination, and no patch exists for this build.
    Without this, a kernel primitive cannot start an unsigned payload such as Dropbear.
+
+   Phase-1 result, evidence only, gate still open.
+   The kernel carries its own `{address, name}` table for symbols its modules need; one entry resolves `SfdUepVerifyFileSignature` to `0xc01cdecc` (E10).
+   That function returns `-1` on a failure path at `0xc01ce1dc` and `0` on success at `0xc01ce254`, and it logs `file %s has incorrect signature.(fsname:%s, mnt_flags:%x)`.
+   Its only two direct callers are packet handlers at `0xc01ceb88` and `0xc01cebe4`, so the kernel-side verifier is reached through the netlink packet path, not by a direct call from a `bprm` hook.
+   The exec hook that decides whether to block, and whether this build is enforce or permissive, were not located.
+   Stopped there rather than guessing, because a wrong enforcement model would invalidate the whole chain.
 2. **Post-copy stack saver and cache-flush sequence.**
    The 2019 chain needs a saver gadget and two coherent-cache flush stages between the copy and the jump.
    The 2019 addresses are Muse.M-specific and do not transfer.
