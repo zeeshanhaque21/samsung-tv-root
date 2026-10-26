@@ -26,7 +26,6 @@ button { font-family: inherit; cursor: pointer; color: inherit; border: 0; }
 .setup { display: block; position: absolute; left: 0; right: 0; bottom: 18px; font-size: 17px; color: #d9dfdc; letter-spacing: 0; font-weight: normal; }
 .youtube { background: #302627; }
 .youtube .brand { color: #fff6f2; }
-.youtube .play { display: inline-block; background: #d4463e; border-radius: 7px; font-size: 20px; padding: 3px 10px; margin-right: 6px; vertical-align: 3px; }
 .netflix { background: #292326; }
 .netflix .brand { color: #ff646c; font-size: 35px; letter-spacing: 2px; }
 .prime { background: #20303d; }

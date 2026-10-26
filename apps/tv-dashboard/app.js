@@ -6,8 +6,10 @@
     var inputActive = false;
     var dialogOpen = false;
     var busy = false;
+    var pendingInput = false;
     var generation = 0;
     var timer;
+    var hintTimer;
     var inputWindow = tv && tv.tvwindow;
     var status = document.getElementById('status');
     var dialog = document.getElementById('exit-dialog');
@@ -24,11 +26,13 @@
         if (token !== generation) { return false; }
         window.clearTimeout(timer);
         busy = false;
+        pendingInput = false;
         generation += 1;
         return true;
     }
-    function begin(label, cleanup) {
+    function begin(label, cleanup, inputOperation) {
         busy = true;
+        pendingInput = !!inputOperation;
         generation += 1;
         var token = generation;
         message(label);
@@ -44,7 +48,7 @@
         var token = begin(originalMessage || 'Returning to TV Home...', function () {
             inputActive = true;
             message('HDMI close not confirmed. Press Back to retry, or use the TV Source menu.');
-        });
+        }, true);
         function failed(error) {
             if (finish(token)) {
                 inputActive = true;
@@ -62,7 +66,15 @@
             }, failed, 'MAIN');
         } catch (error) { failed(error); }
     }
+    function showInputHint() {
+        document.getElementById('input-hint').hidden = false;
+        window.clearTimeout(hintTimer);
+        hintTimer = window.setTimeout(function () {
+            document.getElementById('input-hint').hidden = true;
+        }, 5000);
+    }
     function restoreHome() {
+        window.clearTimeout(hintTimer);
         inputActive = false;
         document.body.className = '';
         document.getElementById('input-hint').hidden = true;
@@ -96,7 +108,7 @@
         var showAttempted = false;
         var token = begin('Opening HDMI ' + number + '...', function () {
             if (showAttempted) { closeInput('No response from HDMI.'); }
-        });
+        }, true);
         function fail(error) {
             if (finish(token)) {
                 var text = 'Cannot open HDMI ' + number + ' (' + errorName(error) + '). Check the cable or use the TV Source menu.';
@@ -126,7 +138,7 @@
                                 inputActive = true;
                                 document.body.className = 'input-active';
                                 document.getElementById('input-number').textContent = number;
-                                document.getElementById('input-hint').hidden = false;
+                                showInputHint();
                                 message('HDMI ' + number + ' selected.');
                             }, fail, ['0px', '0px', '1920px', '1080px'], 'MAIN', 'BEHIND');
                         } catch (error) { fail(error); }
@@ -198,7 +210,7 @@
         if (inputActive) {
             if (key === 10009 || key === 27 || key === 8) {
                 closeInput();
-            }
+            } else if (document.body.className === 'input-active') { showInputHint(); }
             return;
         }
         if (dialogOpen) {
@@ -228,7 +240,7 @@
         document.getElementById('date').textContent = days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate();
     }
     document.addEventListener('visibilitychange', function () {
-        if (document.hidden && (inputActive || busy) && inputWindow) {
+        if (document.hidden && (inputActive || pendingInput) && inputWindow) {
             window.clearTimeout(timer);
             closeInput();
         } else if (!document.hidden) {
@@ -237,12 +249,13 @@
         }
     });
     window.addEventListener('unload', function () {
-        if (inputWindow && (inputActive || busy)) {
+        if (inputWindow && (inputActive || pendingInput)) {
             try { inputWindow.hide(function () {}, function () {}, 'MAIN'); } catch (ignored) { /* Best effort on exit. */ }
         }
     });
-    document.getElementById('mode').textContent = tv && tv.application ? 'TV' : 'Demo';
-    if (tv && tv.application) { message('Choose an app or HDMI input. App tiles marked Setup required need an installed application ID.'); }
+    var deviceReady = tv && tv.application && typeof tv.application.launch === 'function' && inputWindow;
+    document.getElementById('mode').textContent = deviceReady ? 'TV' : 'Demo';
+    if (deviceReady) { message('Choose an app or HDMI input. App tiles marked Setup required need an installed application ID.'); }
     updateClock();
     window.setInterval(updateClock, 15000);
     focus(0);

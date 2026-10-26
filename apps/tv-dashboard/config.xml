@@ -3,7 +3,7 @@
   <tizen:application id="TvHome0001.TVHome" package="TvHome0001" required_version="4.0"/>
   <content src="index.html"/>
   <name>TV Home</name>
-  <icon src="icon.svg"/>
+  <icon src="icon.png"/>
   <tizen:profile name="tv-samsung"/>
   <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
   <tizen:privilege name="http://tizen.org/privilege/tv.window"/>

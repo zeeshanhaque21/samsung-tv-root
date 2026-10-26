@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 ROOT = Path(__file__).resolve().parent
-FILES = ('config.xml', 'index.html', 'style.css', 'settings.js', 'app.js', 'icon.svg')
+FILES = ('config.xml', 'index.html', 'style.css', 'settings.js', 'app.js', 'icon.png')
 NS = {'w': 'http://www.w3.org/ns/widgets', 't': 'http://tizen.org/ns/widgets'}
 PRIVILEGES = {
     'http://tizen.org/privilege/application.launch',
@@ -59,9 +59,9 @@ def validate(contents):
     css = contents['style.css'].decode('utf-8')
     if re.search(r'@import|url\s*\(', css, re.I):
         raise ValueError('Stylesheet must not fetch assets')
-    icon = ET.fromstring(contents['icon.svg'])
-    if icon.tag != '{http://www.w3.org/2000/svg}svg':
-        raise ValueError('Invalid SVG icon')
+    icon = contents['icon.png']
+    if icon[:8] != b'\x89PNG\r\n\x1a\n' or icon[16:24] != b'\x00\x00\x00u\x00\x00\x00u':
+        raise ValueError('Expected a local 117x117 PNG launcher icon')
     if not all(contents.values()):
         raise ValueError('Empty runtime file')
 

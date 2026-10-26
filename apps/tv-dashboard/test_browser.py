@@ -80,11 +80,6 @@ class DashboardBrowserTests(unittest.TestCase):
     def load(self, mock=False, configured=False):
         if mock:
             self.context.add_init_script(MOCK)
-        if configured:
-            # Intercept only the local settings file; app.js stays untouched.
-            self.context.route('**/settings.js', lambda route: route.fulfill(
-                path=ROOT / 'settings.js', content_type='application/javascript'))
-            self.context.add_init_script("document.addEventListener('DOMContentLoaded', function () {});")
         self.page.goto((ROOT / 'index.html').as_uri())
         self.page.locator('.tile').first.wait_for()
         if configured:
@@ -224,6 +219,90 @@ class DashboardBrowserTests(unittest.TestCase):
         self.page.evaluate('lateShow()')
         self.assertFalse(self.page.locator('#input-hint').is_visible())
         self.assertEqual(self.active(), 6)
+
+    def test_hdmi_hide_failure_retry_and_cleanup_serialization(self):
+        self.load(mock=True)
+        self.page.locator('.tile').nth(6).focus()
+        self.press('Enter')
+        self.page.evaluate("() => { tizen.tvwindow.hide = function(ok, fail) { fail({name: 'SecurityError'}); }; }")
+        self.press('Escape')
+        self.assertIn('HDMI close failed (SecurityError)', self.status())
+        self.assertFalse(self.page.locator('#exit-dialog').is_visible())
+        self.page.evaluate("() => { tizen.tvwindow.hide = function(ok) { window.finishHide = ok; }; }")
+        self.press('Escape')
+        self.assertIn('Returning to TV Home', self.status())
+        before = self.page.evaluate('calls.length')
+        self.press('Enter')
+        self.assertEqual(self.page.evaluate('calls.length'), before)
+        self.page.evaluate('finishHide()')
+        self.assertEqual(self.active(), 6)
+        self.assertIn('Back at TV Home', self.status())
+        self.assertFalse(self.page.locator('#exit-dialog').is_visible())
+
+    def test_hidden_hdmi_cleanup_and_hint_timeout(self):
+        self.load(mock=True)
+        self.page.clock.install()
+        self.page.locator('.tile').nth(6).focus()
+        self.press('Enter')
+        self.assertTrue(self.page.locator('#input-hint').is_visible())
+        self.page.clock.fast_forward(5001)
+        self.assertFalse(self.page.locator('#input-hint').is_visible())
+        self.press('ArrowRight')
+        self.assertTrue(self.page.locator('#input-hint').is_visible())
+        self.page.evaluate("Object.defineProperty(document, 'hidden', {configurable: true, value: true}); document.dispatchEvent(new Event('visibilitychange'))")
+        self.assertEqual(self.page.evaluate('calls[calls.length - 1]'), ['hide', 'MAIN'])
+        self.assertEqual(self.page.locator('body').get_attribute('class'), '')
+        self.page.evaluate("Object.defineProperty(document, 'hidden', {configurable: true, value: false}); document.dispatchEvent(new Event('visibilitychange'))")
+        self.assertEqual(self.active(), 6)
+
+    def test_spatial_focus_uses_nearest_tile(self):
+        self.load()
+        self.page.locator('.tile').nth(2).focus()
+        self.press('ArrowDown')
+        self.assertEqual(self.active(), 7)
+        self.press('ArrowUp')
+        self.assertEqual(self.active(), 1)
+        self.press('Tab')
+        self.assertEqual(self.active(), 2)
+        self.press('Shift+Tab')
+        self.assertEqual(self.active(), 1)
+
+    def test_partial_tizen_is_demo_not_success(self):
+        self.context.add_init_script('window.tizen = {application: {}};')
+        self.load()
+        self.assertEqual(self.page.locator('#mode').inner_text(), 'Demo')
+        self.press('Enter')
+        self.assertIn('Demo: cannot open', self.status())
+        self.press('ArrowDown')
+        self.press('Enter')
+        self.assertIn('Demo: cannot switch', self.status())
+
+    def test_background_pending_app_never_closes_hdmi(self):
+        self.load(mock=True, configured=True)
+        self.page.clock.install()
+        self.page.evaluate("mockFailure = 'timeout'")
+        self.page.evaluate("() => { tizen.tvwindow.hide = function(ok, fail) { calls.push(['unexpected-hide']); fail({name: 'SecurityError'}); }; }")
+        self.press('Enter')
+        self.page.evaluate("Object.defineProperty(document, 'hidden', {configurable: true, value: true}); document.dispatchEvent(new Event('visibilitychange'))")
+        self.page.evaluate("Object.defineProperty(document, 'hidden', {configurable: true, value: false}); document.dispatchEvent(new Event('visibilitychange'))")
+        self.assertEqual(self.page.evaluate('calls'), [['launch', 'test.youtube']])
+        self.page.clock.fast_forward(10001)
+        self.assertIn('No response', self.status())
+        self.press('ArrowRight')
+        self.assertEqual(self.active(), 1)
+        self.assertNotIn('HDMI', self.status())
+
+    def test_app_background_before_success_callback(self):
+        self.load(mock=True, configured=True)
+        self.page.evaluate("() => { tizen.application.launch = function(id, ok) { calls.push(['launch', id]); window.finishLaunch = ok; }; }")
+        self.press('Enter')
+        self.page.evaluate("Object.defineProperty(document, 'hidden', {configurable: true, value: true}); document.dispatchEvent(new Event('visibilitychange'))")
+        self.page.evaluate('finishLaunch()')
+        self.page.evaluate("Object.defineProperty(document, 'hidden', {configurable: true, value: false}); document.dispatchEvent(new Event('visibilitychange'))")
+        self.assertEqual(self.page.evaluate('calls'), [['launch', 'test.youtube']])
+        self.assertIn('Launch accepted', self.status())
+        self.press('ArrowRight')
+        self.assertEqual(self.active(), 1)
 
     def test_clock_and_visibility_focus(self):
         self.load()
